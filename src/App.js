@@ -44,6 +44,14 @@ const StatusPositive = ({text,status}) => {
 
 
 const Statistics = ({text,status}) => {
+  if(status.good==0 && status.bad==0 && status.neutral==0) {
+    return (
+      <>
+        <h1>{text}</h1>
+        <div>No feedback given</div>
+      </>
+    )
+  }
   return (
     <>
       <h1>{text}</h1>
@@ -97,7 +105,6 @@ const App = () => {
       <Button onClick={handelneutral} text='netural' />
       <Button onClick={handelbad} text='bad' />
       <Statistics text='statistics' status={status} />
-      
     </div>
   )
 }
