@@ -20,6 +20,28 @@ const StatusShow = ({text,number}) => {
   )
 }
 
+const StatusAverageShow = ({text,status}) => {
+  if(status.good+status.bad+status.neutral==0) {
+    return (
+      <div>{text} {0}</div>
+    )
+  }
+  return(
+    <div>{text} {(status.good - status.bad)/(status.good + status.neutral +status.bad)}</div>
+  )
+}
+
+const StatusPositive = ({text,status}) => {
+    if(status.good + status.neutral +status.bad==0) {
+      return (
+        <div>{text} {0}{'%'}</div>
+      )
+    }
+    return (
+      <div>{text} {(status.good)/(status.good + status.neutral +status.bad)*100}{'%'}</div>
+    )
+}
+
 const App = () => {
   // save clicks of each button to its own state
   const [status, setstatus] = useState({
@@ -41,7 +63,7 @@ const App = () => {
       ...status,
       neutral:status.neutral+1
     }
-    console.log(status.neutral)
+    // console.log(status.neutral)
     setstatus(newClicks)
   }
 
@@ -63,6 +85,9 @@ const App = () => {
       <StatusShow text='good' number={status.good} />
       <StatusShow text='neutral' number={status.neutral} />
       <StatusShow text='bad' number={status.bad} />
+      <StatusShow text='all' number={status.good + status.neutral +status.bad} />
+      <StatusAverageShow text='average' status={status} />
+      <StatusPositive text='positive' status={status} />
     </div>
   )
 }
