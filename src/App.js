@@ -42,6 +42,21 @@ const StatusPositive = ({text,status}) => {
     )
 }
 
+
+const Statistics = ({text,status}) => {
+  return (
+    <>
+      <h1>{text}</h1>
+      <StatusShow text='good' number={status.good} />
+      <StatusShow text='neutral' number={status.neutral} />
+      <StatusShow text='bad' number={status.bad} />
+      <StatusShow text='all' number={status.good + status.neutral +status.bad} />
+      <StatusAverageShow text='average' status={status} />
+      <StatusPositive text='positive' status={status} />
+    </>
+  )
+}
+
 const App = () => {
   // save clicks of each button to its own state
   const [status, setstatus] = useState({
@@ -81,13 +96,8 @@ const App = () => {
       <Button onClick={handelgood} text='good' />
       <Button onClick={handelneutral} text='netural' />
       <Button onClick={handelbad} text='bad' />
-      <Title text='statistics' />
-      <StatusShow text='good' number={status.good} />
-      <StatusShow text='neutral' number={status.neutral} />
-      <StatusShow text='bad' number={status.bad} />
-      <StatusShow text='all' number={status.good + status.neutral +status.bad} />
-      <StatusAverageShow text='average' status={status} />
-      <StatusPositive text='positive' status={status} />
+      <Statistics text='statistics' status={status} />
+      
     </div>
   )
 }
