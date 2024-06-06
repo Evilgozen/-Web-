@@ -1,59 +1,69 @@
 import { useState } from 'react'
 
-const History = (props) => {
-  if(props.allClicks.length === 0) {
-    return (
-      <div>
-        the app is user by pressing the buttons
-      </div>
-    )
-  }
+const Title = ({text}) => {
   return (
-    <div>
-      button press history:{props.allClicks.join(' ')}
-    </div>
+    <h1>
+      {text}
+    </h1>
   )
 }
 
-const Display = ({ counter }) => <div>{counter}</div>
+const Button = ({ text,onClick }) =>  {
+  return (
+    <button onClick={onClick}>{text}</button>
+  )
+}
 
-const Button = ({onClick , text}) =>  <button onClick={onClick}>{text}</button>
+const StatusShow = ({text,number}) => {
+  return (
+    <div>{text} {number}</div>
+  )
+}
 
 const App = () => {
-  const [clicks,setClicks] = useState({
-      Left:0,Right:0
+  // save clicks of each button to its own state
+  const [status, setstatus] = useState({
+    good: 0,
+    neutral: 0,
+    bad: 0
   })
 
-  const [allClicks,steAll] =useState([])
-
-  const handelLeftClick = () => {
+  const handelgood = () => {
     const newClicks = {
-      ...clicks,
-      Left:clicks.Left +1
+      ...status,
+      good:status.good + 1
     }
-    console.log(clicks.Left)
-    steAll(allClicks.concat('L'))
-    setClicks(newClicks)
+    setstatus(newClicks)
   }
 
-  const handelRightClick = () => {
+  const handelneutral = () => {
     const newClicks = {
-      ...clicks,
-      Right: clicks.Right+1
+      ...status,
+      neutral:status.neutral+1
     }
-    steAll(allClicks.concat('R'))
-    setClicks(newClicks)
+    console.log(status.neutral)
+    setstatus(newClicks)
+  }
+
+  const handelbad = () => {
+    const newClicks = {
+        ...status,
+        bad: status.bad +1
+    }
+    setstatus(newClicks)
   }
 
   return (
-    <>
-    <Display counter={clicks.Left} />
-    <Button onClick={ handelLeftClick } text='left' />
-    <Button onClick={ handelRightClick } text='right' />
-    <Display counter={clicks.Right} />
-    <p>{allClicks.join(' ')}</p>
-    <History allClicks={allClicks} />
-    </>
+    <div>
+      <Title text='give feedback' />
+      <Button onClick={handelgood} text='good' />
+      <Button onClick={handelneutral} text='netural' />
+      <Button onClick={handelbad} text='bad' />
+      <Title text='statistics' />
+      <StatusShow text='good' number={status.good} />
+      <StatusShow text='neutral' number={status.neutral} />
+      <StatusShow text='bad' number={status.bad} />
+    </div>
   )
 }
 
