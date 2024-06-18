@@ -1,12 +1,44 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
+import './App.css'
 import Note from './components/Note'
 
 
+const Show = ({onClick,setSelectCountry}) => {
+  const handleClick = () => {
+    setSelectCountry(true)
+    onClick();
+  }
+  return (
+    <>
+      <button onClick={handleClick}>show</button>
+    </>
+  )
+}
+
 const Country = ({Countrys,Filter}) => {
-  const showCountrys=Countrys.filter(country => country.name.common.toLowerCase().includes(Filter.toLowerCase()))
+  const [showCountrys,setShowCountrys] = useState([])
+  const [selectedCountry, setSelectCountry] = useState(false)
+
+  const handelShowCountry = (country) => {
+    console.log("this is the countries",country)
+    setShowCountrys([country])
+    // console.log(showCountrys)
+  }
+
+  useEffect(()=> {
+    setSelectCountry(false)
+  },[Filter])
+
+  useEffect(()=> {
+    if(!selectedCountry) {
+      const filterCountrys=Countrys.filter(country => country.name.common.toLowerCase().includes(Filter.toLowerCase()))
+      setShowCountrys(filterCountrys)
+    }
+  },[Countrys,Filter,selectedCountry])
+
   console.log(showCountrys)
-  if(showCountrys.length==1) {
+  if(showCountrys.length==1 || selectedCountry) {
     console.log(showCountrys[0].languages)
     return (
       <>
@@ -16,7 +48,7 @@ const Country = ({Countrys,Filter}) => {
         <h4>languages:</h4>
         <div>
           { Object.values(showCountrys[0].languages).map(country =>
-              <li>{country}</li>
+              <li key={country}>{country}</li>
           )}
         </div>
         <br />
@@ -24,14 +56,21 @@ const Country = ({Countrys,Filter}) => {
       </>
     )
   }
+
   if(showCountrys.length>10) {
     return (
       <div>There have too much countries,specify your filter</div>
     )
   }
+
   return (
     <ul>
-      { showCountrys.map((country,index) => <div key={index}>{country.name.common}</div>)}
+      { showCountrys.map((country,index) => 
+      <li className="flex-container" key={index}>
+        <div>{country.name.common}</div>
+        <Show onClick={()=>handelShowCountry(country)} setSelectCountry={setSelectCountry} />
+      </li> 
+      )}
     </ul>
   )
 }
