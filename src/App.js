@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
+import Notification from './components/Notify'
 import Phone from './components/Phone'
 import phoneService from './services/phones'
 
@@ -12,6 +13,7 @@ const App = () => {
   const [newNumber, setNewNumber] =useState('a new number...')
   const [showPhones, setshowPhones] = useState([])
   const [newFilter, setnewFilter] = useState('')
+  const [newWarning, setnewWarning] = useState(null)
 
   useEffect(()=> {
     phoneService
@@ -75,6 +77,7 @@ const App = () => {
               const updatePhones = phones.map(p => p.id===thisId ? newObject : p)
               setPhones(updatePhones)
               setshowPhones(updatePhones)
+              setnewWarning(`${newObject.name}相关信息更新成功`)
             })
         }
       }
@@ -85,6 +88,7 @@ const App = () => {
           setPhones(phones.concat(respon))
           setNewName('')
           setNewNumber('')
+          setnewWarning(`添加${newObject.name}相关信息成功`)
         })
       }
   }
@@ -101,6 +105,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={newWarning} />
       <div>筛选:<input onChange={handlefilter} /></div>
       <form onSubmit={addnewName}>
         <div>
