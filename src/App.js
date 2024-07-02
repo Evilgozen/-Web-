@@ -1,75 +1,122 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
-import noteService from './services/notes'
-import Note from './components/Note'
+import Phone from './components/Phone'
+import phoneService from './services/phones'
 
 const App = () => {
-  const [notes, setNotes] = useState([])
-  const [newNote, setNewNote] = useState('')
-  const [showAll, setShowAll] = useState(true)
+  const [persons, setPersons] = useState([
+    { name: 'Arto Hellas' }
+  ])
+  const [newName, setNewName] = useState('a new name...')
+  const [phones, setPhones] =useState([])
+  const [newNumber, setNewNumber] =useState('a new number...')
+  const [showPhones, setshowPhones] = useState([])
+  const [newFilter, setnewFilter] = useState('')
 
-  useEffect(() => {
-    noteService
+  useEffect(()=> {
+    phoneService
       .getAll()
-      .then(response => {
-        setNotes(response)
+      .then(initialPhones => {
+        setPhones(initialPhones)
+        setshowPhones(initialPhones)
       })
-  }, [])
+  },[])
 
-  const addNote = (event) => {
-    event.preventDefault()
-    const noteObject = {
-      content: newNote,
-      important: Math.random() > 0.5,
+  useEffect(()=> {
+    if(newFilter==='') {
+      setshowPhones(phones)
+    }else {
+      setshowPhones(phones.filter(phone => {
+        return phone.name.toLowerCase().includes(newFilter)
+      }))
     }
+  },[newFilter,phones])
 
-    noteService
-      .create(noteObject)
-      .then(response => {
-        setNotes(notes.concat(response))
-        setNewNote('')
+
+  const handlefilter = (event) => {
+    if(event.target.value==='') {
+      setshowPhones(phones)
+    }
+    console.log(event.target.value)
+    setshowPhones(phones.filter(phone => {
+      return phone.name.toLowerCase().includes(event.target.value)
+    }))
+    setnewFilter(event.target.value)
+  }
+
+  const handledelete = phone => event =>  {
+    console.log(phone)
+    if(window.confirm("你确定要删除该电话记录吗?")) {
+      phoneService
+      .deletethis(phone)
+      .then(respon => {
+        const updatedPhones = phones.filter(p => p.id !== phone.id)
+        setPhones(updatedPhones)
+        setshowPhones(updatedPhones)
       })
+    }
+  } 
+
+  const addnewName = (event) => {
+      event.preventDefault()
+      const newObject = {
+        name:newName,
+        number:newNumber
+      }
+      
+      let same=false;
+      if(phones.some(e => e.name===newObject.name)) {
+        const thisId=phones.filter(e => e.name===newObject.name)[0].id
+        if(window.confirm("已经有该用户信息，是否更新用户信息?")) {
+          console.log("here:",thisId)
+          phoneService
+            .upgrade(thisId,newObject)
+            .then(response => {
+              const updatePhones = phones.map(p => p.id===thisId ? newObject : p)
+              setPhones(updatePhones)
+              setshowPhones(updatePhones)
+            })
+        }
+      }
+      else {
+        phoneService
+        .create(newObject)
+        .then(respon => {
+          setPhones(phones.concat(respon))
+          setNewName('')
+          setNewNumber('')
+        })
+      }
   }
 
-  const handleNoteChange = (event) => {
-    setNewNote(event.target.value)
+  const handleNameChange = (event) => {
+    console.log(event.target.value)
+    setNewName(event.target.value)
   }
 
-  const toggleImportance = (id) => {
-    const url = `http://localhost:3001/notes/${id}`
-    const note = notes.find(n => n.id === id)
-    const changedNote = {...note, important: !note.important}
-
-    noteService
-      .update(id,changedNote) 
-      .then(returnedNote => {
-        setNotes(notes.map(note => note.id != id ? note:returnedNote))
-      })
+  const handleNumberChange = (event) => {
+    setNewNumber(event.target.value)
   }
-
-  const notesToShow = showAll
-    ? notes
-    : notes.filter(note => note.important)
 
   return (
     <div>
-      <h1>Notes</h1>
-      <div>
-        <button onClick={() => setShowAll(!showAll)}>
-          show {showAll ? 'important' : 'all' }
-        </button>
-      </div> 
-      <ul>
-        <ul>
-          {notesToShow.map(note => 
-            <Note key={note.id} note={note} toggleImportance={()=>toggleImportance(note.id)}/>
-          )}
-        </ul>
-      </ul>
-      <form onSubmit={addNote}>
-        <input value={newNote} onChange={handleNoteChange} />
-        <button type="submit">save</button>
+      <h2>Phonebook</h2>
+      <div>筛选:<input onChange={handlefilter} /></div>
+      <form onSubmit={addnewName}>
+        <div>
+          name: <input 
+                    value={newName}
+                    onChange={handleNameChange} />
+          number: <input
+                    value={newNumber}
+                    onChange={handleNumberChange} />
+        </div>
+        <div>
+          <button type="submit">add</button>
+        </div>
       </form>
+      <h2>Numbers</h2>
+      <Phone phones={showPhones} handledelete={handledelete}/>
     </div>
   )
 }
